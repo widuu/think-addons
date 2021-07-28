@@ -1,0 +1,29 @@
+{
+    "name": "widuu/think-addons",
+    "description": "thinkphp6 addons support",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "widuu",
+            "email": "admin@widuu.com"
+        }
+    ],
+    "require": {
+    	"php": ">=7.1.0",
+        "topthink/framework": "^6.0.0",
+        "topthink/think-multi-app": "^1.0.14"
+    },
+    "autoload": {
+        "psr-4": {
+            "think\\addons\\": "src"
+        }
+    },
+    "extra": {
+        "think":{
+            "services":[
+                "think\\addons\\Service"
+            ]
+        }
+    },    
+    "minimum-stability": "dev"
+}
