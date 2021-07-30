@@ -11,18 +11,23 @@
     "require": {
     	"php": ">=7.1.0",
         "topthink/framework": "^6.0.0",
-        "topthink/think-multi-app": "^1.0.14"
     },
     "autoload": {
         "psr-4": {
             "think\\addons\\": "src"
-        }
+        },
+        "files": [
+            "src/helper.php"
+        ]
     },
     "extra": {
         "think":{
             "services":[
                 "think\\addons\\Service"
-            ]
+            ],
+            "config":{
+                "addons": "src/config.php"
+            }
         }
     },    
     "minimum-stability": "dev"
