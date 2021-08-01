@@ -25,6 +25,12 @@ class App
     public $addons;
 
     /**
+     * 插件配置缓存标识
+     * @var string
+     */
+    public $addonsConfigPrefix = 'addons_config_';
+
+    /**
      * Addon constructor.
      * @param \think\App $app
      */
@@ -51,7 +57,36 @@ class App
      */
     public function getAddonName(): string
     {
-        return $this->app->request->route('addon');
+        return $this->app->request->route('addon') ?: '';
+    }
+
+    /**
+     * 获取插件列表
+     * @return array
+     */
+    public function getAddonList(): array
+    {
+        $list = [];
+        $addons = $this->getAddons();
+        foreach ($addons as $addon)
+        {
+            $addonPath = $this->getRootPath() . $addon . DIRECTORY_SEPARATOR;
+            // 跳过非目录
+            if(!is_dir($addonPath)) continue;
+            // 跳过非插件
+            if(!is_file($addonPath . ucfirst($addon) . '.php')) continue;
+            $currentAddon = [ 'addonName' => $addon, 'path' => $addonPath];
+            // 插件信息
+            if(is_file($addonPath . 'info.ini')){
+                $info = parse_ini_file($addonPath . 'info.ini', true, INI_SCANNER_TYPED) ?: [];
+                $info['url'] = addons_url($addon)->build();
+            }else{
+                $info = [];
+            }
+            $currentAddon['info'] = $info;
+            array_push($list,  $currentAddon);
+        }
+        return $list;
     }
 
     /**

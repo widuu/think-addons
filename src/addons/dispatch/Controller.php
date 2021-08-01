@@ -42,6 +42,9 @@ class Controller extends Dispatch
      */
     private $addonPath;
 
+    /**
+     * @param App $app
+     */
     public function init(App $app)
     {
         parent::init($app);
@@ -69,7 +72,7 @@ class Controller extends Dispatch
 
         // 更改视图
         $this->app->setNamespace($this->namespace)->request->setController($this->controller)->setAction($this->actionName);
-        $this->app->config->get('view');
+        $config = $this->app->config->get('view');
         $config['view_path'] = $this->addonPath . 'view' . DIRECTORY_SEPARATOR;
         $this->app->config->set($config, 'view');
 
@@ -87,7 +90,6 @@ class Controller extends Dispatch
      */
     public function exec()
     {
-        // TODO: Implement exec() method.
         try {
             // 实例化控制器
             $instance = $this->controller($this->addonName, $this->controller);
@@ -201,8 +203,10 @@ class Controller extends Dispatch
      */
     public function load()
     {
+        // 配置前缀
+        $configPrefix = $this->app->addons->addonsConfigPrefix;
         // 加载配置文件
-        is_file($this->addonPath . 'config.php') && $this->app->config->load($this->addonPath . 'config.php', 'addons_' . $this->addonName);
+        is_file($this->addonPath . 'config.php') && $this->app->config->load($this->addonPath . 'config.php', $configPrefix . $this->addonName);
 
         // 加载自定义函数
         is_file($this->addonPath . 'common.php')  && include_once $this->addonPath . 'common.php';
