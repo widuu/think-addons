@@ -3,12 +3,12 @@
 use think\helper\Str;
 use think\facade\Route;
 use think\Console;
-//
-//Console::starting(function (Console $console){
-//    $console->addCommands([
-//        'addons:service' => \think\addons\command\SendService::class,
-//    ]);
-//});
+
+Console::starting(function (Console $console){
+   $console->addCommands([
+       'addons:service' => \think\addons\command\SendService::class,
+   ]);
+});
 
 if(!function_exists('get_addons_class'))
 {
