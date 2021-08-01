@@ -4,6 +4,8 @@ use think\helper\Str;
 use think\facade\Route;
 use think\Console;
 
+// 由于 tp6.0 的启动流程是 加载全局服务 -> 系统服务 -> 监听 AppInit 事件 -> 加载 vendor 下服务
+// 所以我们要重写发布服务，将Addons service 发布到 系统服务中，这样才能让AppInit事件起作用
 Console::starting(function (Console $console){
     $console->addCommands([
         'service:discover' => \think\addons\command\SendService::class,

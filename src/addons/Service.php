@@ -39,9 +39,7 @@ class Service extends BaseService
     public function boot()
     {
         // 注册命令行
-        $this->commands([
-            'addons:service' => SendService::class,
-        ]);
+        $this->commands([]);
         // 注册路由
         $this->app->event->listen(RouteLoaded::class, function (Route $route){
             // 路由调度器

@@ -27,8 +27,5 @@
             }
         }
     },
-    "scripts": {
-        "post-install-cmd": "@php think addons:service"
-    },
     "minimum-stability": "dev"
 }
