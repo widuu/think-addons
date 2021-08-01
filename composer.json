@@ -27,16 +27,10 @@
             }
         }
     },
-    "scripts" : {
-        "post-package-install": [
-            "php think addons:service"
-        ],
-        "post-install-cmd": [
-            "php think addons:service"
-        ],
-        "post-update-cmd": [
-            "php think addons:service"
-        ]
+    "scripts": {
+        "post-package-install": "@php think addons:service",
+        "post-install-cmd": "php think addons:service",
+        "post-update-cmd": "@php think addons:service"
     },
     "minimum-stability": "dev"
 }
