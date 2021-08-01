@@ -28,8 +28,8 @@
         }
     },
     "scripts" : {
-        "post-autoload-dump": [
-            "@php think addons:service"
+        "post-install-cmd": [
+            "php think addons:service"
         ]
     },
     "minimum-stability": "dev"
