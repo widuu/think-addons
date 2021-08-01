@@ -46,12 +46,12 @@ class Controller extends Dispatch
     {
         parent::init($app);
         // 插件目录
-        $this->addonPath = $this->app->addon->getAddonPath();
+        $this->addonPath = $app->addons->getAddonPath();
         if(!is_dir($this->addonPath)) throw new HttpException(404, 'addons not exists:' . $this->addonName);
         // 命名空间
-        $this->namespace = $app->addon->getNamespace();
+        $this->namespace = $app->addons->getNamespace();
         // 插件名称
-        $this->request->addon = $this->addonName = strip_tags($this->request->route('addon'));
+        $this->request->addons = $this->addonName = strip_tags($this->request->route('addon'));
         // 操作名
         $controller = strip_tags($this->request->route('controller'));
         // 解析 controller
@@ -77,7 +77,7 @@ class Controller extends Dispatch
         $this->app->event->trigger('addon_init');
 
         // log 日志目录
-        $this->app->setRuntimePath($app->getRuntimePath() . 'addons' . DIRECTORY_SEPARATOR . $this->addonName .DIRECTORY_SEPARATOR);
+        $this->app->setRuntimePath($app->getRuntimePath() . $this->namespace . DIRECTORY_SEPARATOR . $this->addonName .DIRECTORY_SEPARATOR);
     }
 
     /**

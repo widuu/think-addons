@@ -2,9 +2,9 @@
 
 namespace think\addons;
 
-use think\App;
+use think\App as BaseApp;
 
-class Addon
+class App
 {
 
     /**
@@ -26,9 +26,9 @@ class Addon
 
     /**
      * Addon constructor.
-     * @param App $app
+     * @param \think\App $app
      */
-    public function __construct(App $app)
+    public function __construct(BaseApp $app)
     {
         $this->app = $app;
         $this->addonPath = $this->getRootPath();

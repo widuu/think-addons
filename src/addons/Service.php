@@ -2,7 +2,7 @@
 
 namespace think\addons;
 
-use think\addons\middleware\Addons;
+use think\addons\Addons;
 use think\Cache;
 use think\event\HttpRun;
 use think\event\RouteLoaded;
@@ -18,7 +18,7 @@ class Service extends BaseService
      * @var string[]
      */
     public $bind = [
-        'addon' => Addon::class,
+        'addons' => App::class,
     ];
 
     /**

@@ -19,6 +19,7 @@ class Addons
      */
     public function handle($request, \Closure $next)
     {
+        // 插件全局事件
         Event::trigger('addons_middleware', $request);
         return $next($request);
     }

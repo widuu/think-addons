@@ -30,7 +30,7 @@ if(!function_exists('addons_url'))
                 $action = trim($url['path'], '/');
             } else {
                 $route = explode('/', $url['path']);
-
+                // 大于 2级分割
                 if(count($route) > 2){
                     $addon = array_pop($route);
                     $controller = array_pop($route);
@@ -49,7 +49,9 @@ if(!function_exists('addons_url'))
                 $param = array_merge($query, $param);
             }
         }
-        $param  = array_merge($param, ['addon' => $addon, 'controller' => $controller, 'action' => $action]);
-        return Route::buildUrl('think_addons', $param)->suffix($suffix)->domain($domain);
+        // namespace
+        $namespace = app()->addon->getNamespace();
+        // 返回 URL
+        return Route::buildUrl("@{$namespace}/{$addon}/{$controller}/{$action}", $param)->suffix($suffix)->domain($domain);
     }
 }
