@@ -28,7 +28,13 @@
         }
     },
     "scripts" : {
+        "post-package-install": [
+            "php think addons:service"
+        ],
         "post-install-cmd": [
+            "php think addons:service"
+        ],
+        "post-update-cmd": [
             "php think addons:service"
         ]
     },
