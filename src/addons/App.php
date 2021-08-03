@@ -123,7 +123,7 @@ class App
             // 加载事件
             $this->loadEvents($eventConfig, $eventFiles);
             // 加载服务
-            $addonsService && $this->loadAddonsServices($addonSystemConfig['services']);
+            $addonsService && $this->loadAddonsServices($addonSystemConfig['services'] ?: []);
             // 加载自动命令行
             $addonsCommand && $this->loadCommands($addonSystemConfig['commands']);
             // 加载路由
@@ -259,7 +259,7 @@ class App
                 if($addonsEvents) $events[$addon] = $addonsEvents;
             }
             // config 配置信息
-            $addonsConfig['service']     = $services;
+            $addonsConfig['services']    = $services;
             $addonsConfig['routes']      = $routes;
             // 事件
             $addonsConfig['events']      = $events;

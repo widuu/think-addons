@@ -1,0 +1,31 @@
+<?php
+
+
+
+namespace {%namespace%}\{%addon%};
+
+use think\Addons;
+
+Class {%class%} extends Addons
+{
+    protected function install()
+    {
+        return true;
+    }
+
+    protected function uninstall()
+    {
+        return true;
+    }
+
+    protected function enable()
+    {
+        return true;
+    }
+
+    protected function disable()
+    {
+        return true;
+    }
+}
+

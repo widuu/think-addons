@@ -76,9 +76,6 @@ class Controller extends Dispatch
         $config['view_path'] = $this->addonPath . 'view' . DIRECTORY_SEPARATOR;
         $this->app->config->set($config, 'view');
 
-        // 初始化事件
-        $this->app->event->trigger('addon_init');
-
         // log 日志目录
         $this->app->setRuntimePath($app->getRuntimePath() . $this->namespace . DIRECTORY_SEPARATOR . $this->addonName .DIRECTORY_SEPARATOR);
     }
@@ -90,6 +87,9 @@ class Controller extends Dispatch
      */
     public function exec()
     {
+        // 运行事件
+        $this->app->event->trigger('AddonsRun');
+
         try {
             // 实例化控制器
             $instance = $this->controller($this->addonName, $this->controller);
@@ -128,7 +128,7 @@ class Controller extends Dispatch
         $data = $this->app->invokeReflectMethod($instance, $reflect, $vars);
 
         // 结束事件
-        $this->app->event->trigger('addon_end');
+        $this->app->event->trigger('AddonsEnd');
 
         return $data;
     }

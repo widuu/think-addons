@@ -4,6 +4,7 @@ namespace think\addons;
 
 
 
+use think\addons\command\Builder;
 use think\Cache;
 use think\facade\Config;
 use think\Request;
@@ -69,8 +70,11 @@ class Service extends BaseService
                 }
             }
         });
-        dump(Config::get('addons.addons_commands', []));
+        // 命令行
+        $commands = Config::get('addons.addons_commands', []);
+        // 添加生成插件
+        $commands['addons:build'] = Builder::class;
         // 注册命令行
-        $this->commands(Config::get('addons.addons_commands', []));
+        $this->commands($commands);
     }
 }
