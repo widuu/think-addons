@@ -136,7 +136,6 @@ if(!function_exists('addons_url'))
             parse_str($url['query'], $query);
             $param = array_merge($query, $param);
         }
-        dump($controller);
         // namespace
         $namespace = app()->addons->getNamespace();
         // 返回 URL

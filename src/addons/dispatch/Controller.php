@@ -207,18 +207,18 @@ class Controller extends Dispatch
         $configPrefix = $this->app->addons->addonsConfigPrefix;
         // 加载配置文件
         is_file($this->addonPath . 'config.php') && $this->app->config->load($this->addonPath . 'config.php', $configPrefix . $this->addonName);
-
         // 加载自定义函数
         is_file($this->addonPath . 'common.php')  && include_once $this->addonPath . 'common.php';
-
         // 加载容器
-        is_file($this->addonPath . 'provider.php') && $this->app->bind(include $this->addonPath . 'provider.php');
+        if(!$this->app->config->get('addons.autoload_addons_service', false)) {
+            is_file($this->addonPath . 'provider.php') && $this->app->bind(include $this->addonPath . 'provider.php');
+        }
         // 加载事件
-        is_file($this->addonPath . 'event.php') &&  $this->app->loadEvent(include $this->addonPath . 'event.php');
-
+        if(!$this->app->config->get('addons.autoload_addons_efile', false)){
+            is_file($this->addonPath . 'event.php') &&  $this->app->loadEvent(include $this->addonPath . 'event.php');
+        }
         // 中间件
         is_file($this->addonPath . 'middleware.php') &&  $this->app->middleware->import(include $this->addonPath. 'middleware.php', 'route');
-
         // 加载语言包
         $this->loadLangPack($this->app->lang->defaultLangSet());
     }

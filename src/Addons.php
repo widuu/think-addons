@@ -79,7 +79,7 @@ abstract class Addons
         if($isAddon){
             return Config::get($this->configPrefix . $name, []);
         }
-        // 其它应用调用
+        // 其它应用调用，开启全局自动解析的情况下 会产生配置文件
         $configName = $this->configPrefix . $name;
         // 防止整个流程中多次加载
         if(!Config::has($configName)){
@@ -139,12 +139,23 @@ abstract class Addons
      * 插件安装
      * @return mixed
      */
-//    abstract public function install();
+    abstract protected function install();
 
     /**
      * 插件卸载
      * @return mixed
      */
-//    abstract public function uninstall();
-    
+    abstract protected function uninstall();
+
+    /**
+     * 启用插件
+     * @return mixed
+     */
+    abstract protected function enable();
+
+    /**
+     * 禁用插件
+     * @return mixed
+     */
+    abstract protected function disable();
 }

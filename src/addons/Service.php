@@ -3,9 +3,9 @@
 namespace think\addons;
 
 
-use think\addons\command\SendService;
-use think\Cache;
 
+use think\Cache;
+use think\facade\Config;
 use think\Request;
 use think\Route;
 use think\event\AppInit;
@@ -16,21 +16,14 @@ use think\addons\middleware\Addons;
 
 class Service extends BaseService
 {
-
     /**
-     * 绑定
-     * @var string[]
+     * 服务注册绑定 加载插件服务
      */
-    public $bind = [
-        'addons' => App::class,
-    ];
-
-
     public function register(): void
     {
-        // 监听 AppInit 服务
-        $this->app->event->listen(AppInit::class, function (App $app){
-        });
+        $this->app->bind(['addons' => App::class]);
+        // 自动加载
+        $this->app->addons->autoload();
     }
 
     /**
@@ -38,8 +31,6 @@ class Service extends BaseService
      */
     public function boot()
     {
-        // 注册命令行
-        $this->commands([]);
         // 注册路由
         $this->app->event->listen(RouteLoaded::class, function (Route $route){
             // 路由调度器
@@ -49,7 +40,7 @@ class Service extends BaseService
             // 注册路由
             $route->rule($namesapce . '/:addon/:controller/:action', $dispatch)->middleware(Addons::class);
             // 获取自定义路由
-            $custom_route = (array)$this->app->config->get('addons.route', []);
+            $custom_route = Config::get('addons.route', []);
             // 循环注册路由
             foreach ($custom_route as $k => $v){
                 if(!$v) continue;
@@ -69,6 +60,7 @@ class Service extends BaseService
                     });
                 }else{
                     list($addon, $controller, $action) = explode('/', $v);
+
                     $route->rule($k, $dispatch)->name($k)->completeMatch(true)->append([
                         'addon'      => $addon,
                         'controller' => $controller,
@@ -77,5 +69,8 @@ class Service extends BaseService
                 }
             }
         });
+        dump(Config::get('addons.addons_commands', []));
+        // 注册命令行
+        $this->commands(Config::get('addons.addons_commands', []));
     }
 }
