@@ -178,22 +178,32 @@ class App
         $this->loadAddonsEventFiles($eventFiles);
         // 监听事件
         $listen = Config::get('addons.addons_event');
+        // 插件初始化事件
+        $addonsInitEvent = isset($listen['AddonsInit']) && is_array($listen['AddonsInit']) ? $listen['AddonsInit'] : [];
+        // 防止监听事件
+        unset($listen['AddonsInit']);
         // 循环事件
         foreach ($events as $addon => $event){
             foreach ($event as $k => $v){
                 // 事件不存在初始化
                 !isset($listen[$k]) && $listen[$k] = [];
-                // 事件类型为初始化
-                if($k == 'AddonsInit'){
-                    $this->app->event->trigger($event);
-                }else{
-                    // 不存在事件添加事件
-                    !in_array($v, $listen[$k]) && $listen[$k] = array_merge($listen[$k], $v);
-                }
+                // 不存在事件添加事件
+                !in_array($v, $listen[$k]) && $listen[$k] = array_merge($listen[$k], $v);
             }
         }
+
+        // 转换非数组事件
+        $listen = array_map(function ($v){
+           return is_string($v) ? (array)$v : $v;
+        }, $listen);
+
         // 加载全局事件
         $this->app->event->listenEvents($listen);
+
+        // 执行初始化任务
+        foreach ($addonsInitEvent as $k => $v) {
+            $this->app->event->trigger('AddonsInit', $v);
+        }
     }
 
     /**

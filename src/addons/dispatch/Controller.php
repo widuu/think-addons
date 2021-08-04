@@ -242,6 +242,7 @@ class Controller extends Dispatch
 
         if (isset($list[$langset])) {
             Lang::load($list[$langset]);
+
         }
     }
 }
