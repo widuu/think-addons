@@ -16,13 +16,13 @@
 return [
     // 插件的 namespace 也是插件目录
     'app_namespace'           => 'addons',
-    // 生产环境下，开启自动解析时的缓存名称，方便更新
+    // 生产环境下，开启自动加载时的缓存名称，方便更新
     'addons_autoload_cache'   => 'addons_autoload_cache',
     // 自动解析加载插件事件，此为全局事件，可以在全局访问
     'autoload_addons_event'   => true,
-    // 加载插件下的 event.php
-    'autoload_addons_efile'    => false,
-    // 自动解析服务注册，全局事件，可以在全局访问
+    // 全局加载插件下的 event.php
+    'autoload_addons_efile'   => false,
+    // 自动解析服务注册，全局服务，可以在全局访问
     'autoload_addons_service' => false,
     // 自动注册路由
     'autoload_addons_route'   => true,
