@@ -53,15 +53,24 @@ class App
         foreach ($dirs as $k => $v) {
             $addonPath = $this->getRootPath() . $v . DIRECTORY_SEPARATOR;
             // 跳过非目录
-            if (!is_dir($addonPath)) unset($dirs[$k]);
+            if (!is_dir($addonPath)) {
+                unset($dirs[$k]);
+            }
+
             // 跳过非插件
-            if (!is_file($addonPath . ucfirst($v) . '.php')) unset($dirs[$k]);
+            if (!is_file($addonPath . ucfirst($v) . '.php')) {
+                unset($dirs[$k]);
+            }
+
             // 插件信息
-            if (!is_file($addonPath . 'info.ini')) unset($dirs[$k]);
+            if (!is_file($addonPath . 'info.ini')) {
+                unset($dirs[$k]);
+            }
+
         }
         $this->addons = $dirs;
         $this->app->cache->set('addons_path', $this->addons);
-        return  $this->addons;
+        return $this->addons;
     }
 
     /**
@@ -81,14 +90,13 @@ class App
     {
         $list = [];
         $addons = $this->getAddons();
-        foreach ($addons as $addon)
-        {
+        foreach ($addons as $addon) {
             $addonPath = $this->getRootPath() . $addon . DIRECTORY_SEPARATOR;
-            $currentAddon = [ 'addonName' => $addon, 'path' => $addonPath];
+            $currentAddon = ['addonName' => $addon, 'path' => $addonPath];
             $info = parse_ini_file($addonPath . 'info.ini', true, INI_SCANNER_TYPED) ?: [];
             $info['url'] = addons_url($addon)->build();
             $currentAddon['info'] = $info;
-            array_push($list,  $currentAddon);
+            array_push($list, $currentAddon);
         }
         return $list;
     }
@@ -101,19 +109,19 @@ class App
     public function autoload()
     {
         // 开启自动加载事件
-        $addonsEvent     = Config::get('addons.autoload_addons_event', false);
+        $addonsEvent = Config::get('addons.autoload_addons_event', false);
         // 开启加载插件下自定义事件文件
         $addonsEventFile = Config::get('addons.autoload_addons_efile', false);
         // 开启自动服务
-        $addonsService   = Config::get('addons.autoload_addons_service', false);
+        $addonsService = Config::get('addons.autoload_addons_service', false);
         // 开启自动发现路由
-        $addonsRoute     = Config::get('addons.autoload_addons_route', false);
+        $addonsRoute = Config::get('addons.autoload_addons_route', false);
         // 开启自动命令行
-        $addonsCommand   = Config::get('addons.autoload_addons_command', false);
+        $addonsCommand = Config::get('addons.autoload_addons_command', false);
         // 配置缓存名称
-        $addonsCache     = Config::get('addons.addons_autoload_cache', 'addons_autoload_cache');
+        $addonsCache = Config::get('addons.addons_autoload_cache', 'addons_autoload_cache');
         // 开启任意配置
-        if( $addonsEvent || $addonsService || $addonsCache || $addonsEventFile || $addonsCommand ){
+        if ($addonsEvent || $addonsService || $addonsCache || $addonsEventFile || $addonsCommand) {
             // 现在加载配置
             $addonSystemConfig = $this->loadAddonsSystemConfig($addonsCache);
             // 文件事件
@@ -127,9 +135,9 @@ class App
             // 加载自动命令行
             $addonsCommand && $this->loadCommands($addonSystemConfig['commands']);
             // 加载路由
-            if($addonsRoute){
+            if ($addonsRoute) {
                 $routes = Config::get('addons.route', []);
-                if(count($addonSystemConfig['routes']) > 0){
+                if (count($addonSystemConfig['routes']) > 0) {
                     $routes = array_merge($routes, $addonSystemConfig['routes']);
                 }
                 $routes && Config::set(['route' => $routes], 'addons');
@@ -144,14 +152,20 @@ class App
     public function loadCommands(array $systemCommands)
     {
         $commands = Config::get('addons.addons_commands', []);
-        if(count($systemCommands) > 0) {
+        if (count($systemCommands) > 0) {
             $commands = array_merge($commands, $systemCommands);
         }
-        foreach ($commands as $k => $command){
+        foreach ($commands as $k => $command) {
             // 去除非字符串命令行
-            if(!is_string($k)) unset($commands[$k]);
+            if (!is_string($k)) {
+                unset($commands[$k]);
+            }
+
             // 去除类不存在
-            if(!class_exists($command)) unset($commands[$k]);
+            if (!class_exists($command)) {
+                unset($commands[$k]);
+            }
+
         }
         $commands && Config::set(['addons_commands' => $commands], 'addons');
     }
@@ -163,7 +177,10 @@ class App
      */
     public function loadAddonsServices($services)
     {
-        if(!is_array($services)) return true;
+        if (!is_array($services)) {
+            return true;
+        }
+
         $this->app->bind($services);
     }
 
@@ -183,26 +200,28 @@ class App
         // 防止监听事件
         unset($listen['AddonsInit']);
         // 循环事件
-        foreach ($events as $addon => $event){
-            foreach ($event as $k => $v){
+        foreach ($events as $addon => $event) {
+            foreach ($event as $k => $v) {
                 // 事件不存在初始化
                 !isset($listen[$k]) && $listen[$k] = [];
                 // 不存在事件添加事件
                 !in_array($v, $listen[$k]) && $listen[$k] = array_merge($listen[$k], $v);
             }
         }
+        // 当事件存在，且为数组情况
+        if ($listen && is_array($listen)) {
+            // 转换非数组事件
+            $listen = array_map(function ($v) {
+                return is_string($v) ? (array) $v : $v;
+            }, $listen);
 
-        // 转换非数组事件
-        $listen = array_map(function ($v){
-           return is_string($v) ? (array)$v : $v;
-        }, $listen);
+            // 加载全局事件
+            $this->app->event->listenEvents($listen);
 
-        // 加载全局事件
-        $this->app->event->listenEvents($listen);
-
-        // 执行初始化任务
-        foreach ($addonsInitEvent as $k => $v) {
-            $this->app->event->trigger('AddonsInit', $v);
+            // 执行初始化任务
+            foreach ($addonsInitEvent as $k => $v) {
+                $this->app->event->trigger('AddonsInit', $v);
+            }
         }
     }
 
@@ -211,12 +230,16 @@ class App
      * @param $files
      * @return bool
      */
-    public function loadAddonsEventFiles($files){
-        if(!is_array($files) || !$files) return [];
+    public function loadAddonsEventFiles($files)
+    {
+        if (!is_array($files) || !$files) {
+            return [];
+        }
+
         $addonPath = $this->getRootPath();
-        foreach ($files as $file){
+        foreach ($files as $file) {
             $event = include $addonPath . $file;
-            if(is_array($event) && $event){
+            if (is_array($event) && $event) {
                 $this->app->loadEvent($event);
             }
         }
@@ -231,31 +254,31 @@ class App
     public function loadAddonsSystemConfig($cacheName)
     {
         // 所有配置
-        $addonsConfig   = [];
+        $addonsConfig = [];
         // 非调试模式并且有缓存
-        if(!$this->app->isDebug() && Cache::has($cacheName)){
+        if (!$this->app->isDebug() && Cache::has($cacheName)) {
             $addonsConfig = Cache::get($cacheName, []);
-        }else{
+        } else {
             $addons = $this->app->addons->getAddons();
             $addonPath = $this->app->addons->getRootPath();
             // 初始化参数
             $routes = $events = $event_files = $commands = [];
             // 全局配置参数
             $services = Config::get('addons.addons_service', []);
-            foreach ($addons as $addon){
+            foreach ($addons as $addon) {
                 // 服务文件
-                if(is_file($addonPath . $addon . DIRECTORY_SEPARATOR . 'provider.php')){
+                if (is_file($addonPath . $addon . DIRECTORY_SEPARATOR . 'provider.php')) {
                     try {
                         $service = include $addonPath . $addon . DIRECTORY_SEPARATOR . 'provider.php';
-                        if(is_array($service) && count($service) > 0){
+                        if (is_array($service) && count($service) > 0) {
                             $services = array_merge($services, $service);
                         }
-                    }catch (\Exception $e){
+                    } catch (\Exception $e) {
                         continue;
                     }
                 }
                 // 应用插件事件文件
-                if(is_file($addonPath . $addon . DIRECTORY_SEPARATOR . 'event.php')){
+                if (is_file($addonPath . $addon . DIRECTORY_SEPARATOR . 'event.php')) {
                     $event_files[$addon] = $addon . DIRECTORY_SEPARATOR . 'event.php';
                 }
                 // 系统配置
@@ -266,16 +289,19 @@ class App
                 $commands = array_merge($commands, $config['commands'] ?: []);
                 // 解析插件事件
                 $addonsEvents = $this->parseAddonEvent($addon);
-                if($addonsEvents) $events[$addon] = $addonsEvents;
+                if ($addonsEvents) {
+                    $events[$addon] = $addonsEvents;
+                }
+
             }
             // config 配置信息
-            $addonsConfig['services']    = $services;
-            $addonsConfig['routes']      = $routes;
+            $addonsConfig['services'] = $services;
+            $addonsConfig['routes'] = $routes;
             // 事件
-            $addonsConfig['events']      = $events;
-            $addonsConfig['event_files']  = $event_files;
+            $addonsConfig['events'] = $events;
+            $addonsConfig['event_files'] = $event_files;
             // 命令行
-            $addonsConfig['commands']    = $commands;
+            $addonsConfig['commands'] = $commands;
             // cache
             Cache::set($cacheName, $addonsConfig);
         }
@@ -292,35 +318,38 @@ class App
     {
         $class = get_addons_class($name);
         // 类不存在返回
-        if(!$class) return [];
-        $baseMethods   = get_class_methods('\\think\\Addons');
+        if (!$class) {
+            return [];
+        }
+
+        $baseMethods = get_class_methods('\\think\\Addons');
         $addonsMethods = get_class_methods($class);
         // 差异方法
         $methods = array_diff($addonsMethods, $baseMethods);
         // 事件
         $events = [];
-        foreach ($methods as $method){
+        foreach ($methods as $method) {
             // 事件数组
             $event = [];
             // 反射类
             $reflection = new \ReflectionMethod($class, $method);
             // 判断是否可以访问
-            if($reflection->isPublic()){
+            if ($reflection->isPublic()) {
                 // 注释参数,监听多个事件或者重新命名
                 $params = $this->parseNameAnnotate($reflection, 'Event');
-                if(is_array($params) && count($params) > 0){
-                    foreach ($params as $param){
-                        $event = array_merge($event, (array)$param);
+                if (is_array($params) && count($params) > 0) {
+                    foreach ($params as $param) {
+                        $event = array_merge($event, (array) $param);
                     }
-                }else{
+                } else {
                     // 没有重命名的事件
                     array_push($event, $method);
                 }
                 // 重组
-                foreach ($event as $e){
-                    if(isset($events[$e])){
+                foreach ($event as $e) {
+                    if (isset($events[$e])) {
                         array_push($events[$e], [$class, $method]);
-                    }else{
+                    } else {
                         $events[$e][] = [$class, $method];
                     }
                 }
@@ -340,8 +369,8 @@ class App
         $document = $reflection->getDocComment();
         $document = substr($document, 3, -2);
         $annotations = [];
-        if(preg_match_all('/@(?<name>[A-Za-z_-]+)[\s\t]*\((?<args>(?:(?!\)).)*)\)\r?/s', $document, $matches) !== false){
-            foreach ($matches[1] as $k => $v){
+        if (preg_match_all('/@(?<name>[A-Za-z_-]+)[\s\t]*\((?<args>(?:(?!\)).)*)\)\r?/s', $document, $matches) !== false) {
+            foreach ($matches[1] as $k => $v) {
                 $annotations[$v] = isset($matches['args'][$k]) ? json_decode($matches['args'][$k], true) : '';
             }
         }
@@ -360,9 +389,12 @@ class App
         $document = $reflection->getDocComment();
         $document = substr($document, 3, -2);
         if (preg_match_all('/@' . $name . '(?:\s*(?:\(\s*)?(.*?)(?:\s*\))?)??\s*(?:\n|\*\/)/', $document, $matches)) {
-            foreach ($matches[1] as $k => $v){
-                $value =  isset($matches[1][$k]) ? json_decode($matches[1][$k], true) : '';
-                if(!in_array($value, $annotations)) $annotations[] = $value;
+            foreach ($matches[1] as $k => $v) {
+                $value = isset($matches[1][$k]) ? json_decode($matches[1][$k], true) : '';
+                if (!in_array($value, $annotations)) {
+                    $annotations[] = $value;
+                }
+
             }
         }
         return $annotations;
@@ -377,13 +409,19 @@ class App
     {
         $configName = $this->app->addons->addonsConfigPrefix . $name;
         // 存在直接返回
-        if(Config::has($configName)) return Config::get($configName, []);
+        if (Config::has($configName)) {
+            return Config::get($configName, []);
+        }
+
         // 配置文件
         $configPath = $this->app->addons->getRootPath() . $name . DIRECTORY_SEPARATOR . 'config.php';
-        if(!is_file($configPath)) return [];
+        if (!is_file($configPath)) {
+            return [];
+        }
+
         // 加载配置
         Config::load($configPath, $configName);
-        return  Config::get($configName, []);
+        return Config::get($configName, []);
     }
 
     /**
@@ -392,9 +430,9 @@ class App
      */
     public function getAddonPath(): string
     {
-        $rootPath  = $this->getRootPath();
+        $rootPath = $this->getRootPath();
         $addonName = $this->getAddonName();
-        return  $rootPath . $addonName . DIRECTORY_SEPARATOR;
+        return $rootPath . $addonName . DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -403,7 +441,10 @@ class App
     public function getRootPath()
     {
         $addonsPath = $this->app->getRootPath() . $this->getNamespace() . DIRECTORY_SEPARATOR;
-        if(!is_dir($addonsPath))  @mkdir($addons_path, 0755, true);
+        if (!is_dir($addonsPath)) {
+            @mkdir($addons_path, 0755, true);
+        }
+
         return $addonsPath;
     }
 
